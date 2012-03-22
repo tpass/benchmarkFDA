@@ -1,0 +1,65 @@
+#-------------------------------------------------
+#    Data file for the aorta in Navier-Stokes
+#-------------------------------------------------
+
+[fluid]
+
+    [./problem]
+        rescale = 1.              # add a scale factor to data read from file
+        smoothRatio = 1.          # the prescribed velocity will be flattened to zero outside a circle
+                                  # of radius R = smoothRatio * R_in (R_in being the radius of the inflow section)
+        profileShape = flat       # parabolic or flat
+        preloadT = .05            # if the boundary data do not start from 0, and the initial condition is 0,
+                                  # you may want to activate a "preload phase" in which the dirichlet BC is
+                                  # linearly increasing from 0 to the first value in the data
+                                  # BEWARE With preloadT > 0 you should explicitly set initialtime = -preloadT
+                                  # BEWARE With preloadT > 0 you should explicitly set startT
+        startT   = 0.             # time at which the boundary data start
+        input_file = ./boundaryData/benchmark_flow.dat
+        linearPreload = true
+
+        wallList = '300'          # homogeneous Dirichlet BCs
+        outflowList = '200'       # homogeneous Neumann BCs
+        inflowList = '100'        # data-based Dirichlet BCs
+
+    [../physics]
+        density         = 1056.0      # density kg/m^3
+        viscosity       = 0.0035      # viscosity N*s/m^2
+
+    [../space_discretization]
+        mesh_dir         = ./Mesh/
+        mesh_file        = coarse_netgen.vol
+        mesh_type        = .vol           # .vol -> Netgen reader, .mesh -> INRIA reader
+        mesh_faces       = all            # update all faces elements
+        mesh_edges       = all            # update all edges elements
+        velocity_fespace = P1Bubble
+        pressure_fespace = P1
+        mass_lumping     = true           # mass lumping accelerate convergence, reduce accuracy
+        stiff_strain     = true           # if true we discretize \int (grad(u) + grad(u)^T)*(grad(v) + grad(v)^T)
+        matrix_pattern   = true           # improves efficiency and reduces memory footprint
+        #offlinePartitioning = false
+        #partitionFile    = 
+        
+        [./stabilization] 
+            betaSD       = 0.0      # scalar parameter of SD stabilization
+            divBetaUV    = false    # add \int div(w)u*v stabilization
+            stabilizeBackflows = 10 # add numerical viscosity proportional to the magnitude of "backflow" velocity 
+        [../]
+        
+    [../time_discretization]
+        initialtime      = -0.05
+        endtime          = 1.0
+        timestep         = 0.001     # timestep
+        BDF_order        = 2 
+        order_yosida     = 1 
+        nonlinearity_treatment = 0   # 0: semi-implicit, 1: explicit, 2: KIO91
+
+[exporter]
+    type           = hdf5  % hdf5, Ensight or VTK
+    post_dir       = ./    # where to write the results. BEWARE: if the folder is not existent,
+                           # nothing will be written on disk.
+    multimesh      = false # save also the geometry (may be useful if time-dependent)
+    save           = 1    # will write on file every 'save' time steps
+    exportMode     = 2     # only for VTK export (1: ascii, 2: binary)
+    floatPrecision = 1     # only for VTK export (1: single precision, 2: double precision)
+    time_id_width  = 3     # how many digits reserved for the time index in the file name
