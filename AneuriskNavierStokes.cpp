@@ -43,7 +43,7 @@ void AneuriskNavierStokes::setProblemData()
     Debug() << "[AneuriskNavierStokes::setProblemData]\n";
 
     // problem_type problem;
-    problem_type::setParams( this->M_getPot, *this->M_meshPartitionerPtr->meshPartition(), this->M_commPtr );
+    problem_type::setParams( this->M_getPot, *this->M_meshPtr, this->M_commPtr );
 
     if( this->M_getPot("fluid/problem/avg_reynolds", 350) )
     {
