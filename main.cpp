@@ -1,5 +1,5 @@
 
-#include "AneuriskNavierStokes.hpp"
+#include <lifev/ecm2/navier_stokes/SingleInflowBloodFlowNSApplication.hpp>
 
 using namespace LifeV;
 
@@ -12,9 +12,10 @@ int main(int argc, char **argv)
 	std::cout<< "MPI Initialization\n";
 #endif
 
-    boost::scoped_ptr<AneuriskNavierStokes> aneurisk( new AneuriskNavierStokes( argc, argv ) );
-    aneurisk->run();
-    aneurisk.reset();
+    boost::scoped_ptr<SingleInflowBloodFlowNSApplication> singleInflowNSApp(
+                    new SingleInflowBloodFlowNSApplication( argc, argv ) );
+    singleInflowNSApp->run();
+    singleInflowNSApp.reset();
 
 #ifdef HAVE_MPI
     MPI_Finalize();
